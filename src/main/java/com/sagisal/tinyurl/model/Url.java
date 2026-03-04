@@ -34,5 +34,6 @@ public class Url {
     private Instant createdAt = Instant.now();
 
     @Column(name = "is_active")
+    @Builder.Default
     private Boolean isActive = true;
 }
