@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+
+  app:
+    build: .
+    container_name: tinyurl-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tinyurl_db
+      SPRING_DATASOURCE_USERNAME: tinyurl_user
+      SPRING_DATASOURCE_PASSWORD: tinyurl_pass
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      APP_BASE_URL: http://localhost:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: tinyurl-postgres
+    environment:
+      POSTGRES_DB: tinyurl_db
+      POSTGRES_USER: tinyurl_user
+      POSTGRES_PASSWORD: tinyurl_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tinyurl_user -d tinyurl_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: tinyurl-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
