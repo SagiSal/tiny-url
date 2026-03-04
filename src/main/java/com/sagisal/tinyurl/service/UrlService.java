@@ -1,6 +1,7 @@
 package com.sagisal.tinyurl.service;
 
 import com.sagisal.tinyurl.dto.*;
+import com.sagisal.tinyurl.exception.UrlNotFoundException;
 import com.sagisal.tinyurl.model.Url;
 import com.sagisal.tinyurl.repository.UrlRepository;
 import com.sagisal.tinyurl.util.Base62Encoder;
@@ -47,7 +48,7 @@ public class UrlService {
         return urlRepository
             .findByShortCodeAndIsActiveTrue(shortCode)
             .map(Url::getOriginalUrl)
-            .orElseThrow(() -> new RuntimeException("URL not found: " + shortCode));
+            .orElseThrow(() -> new UrlNotFoundException(shortCode));
     }
 
     @Async
